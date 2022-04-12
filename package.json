@@ -1,0 +1,19 @@
+{
+  "name": "vue_mini",
+  "version": "1.0.0",
+  "description": "A miniVue",
+  "main": "index.ts",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/threeStepWalk/vue_mini.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/threeStepWalk/vue_mini/issues"
+  },
+  "homepage": "https://github.com/threeStepWalk/vue_mini#readme"
+}
