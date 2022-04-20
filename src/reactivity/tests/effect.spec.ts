@@ -73,7 +73,8 @@ describe('effect', () => {
     expect(dummy).toBe(2)
 
     stop(runner)
-    obj.prop = 3
+    // obj.prop = 3
+    obj.prop++  // 触发 get 和 set 了， 可能有问题
     expect(dummy).toBe(2)
 
     runner()
@@ -97,5 +98,5 @@ describe('effect', () => {
     expect(onStop).toBeCalledTimes(1)
   })
 
-  
+
 })

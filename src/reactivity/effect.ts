@@ -1,23 +1,36 @@
 import { extend } from "../shared"
 
+let activeEffect
+let shouldTrack 
+
 class ReactiveEffect {
   private _fn: any
   deps = []
-  active = true
+  active = true  // 是否 stop 的标识
   onStop?: () => void
+
   constructor(fn, public scheduler?) {
     this._fn = fn
   }
+
   run() {
+    if (!this.active) return this._fn()
+
+    shouldTrack = true  // 不是 stop 应该可以 track
     activeEffect = this
-    return this._fn()
+
+    const result = this._fn()
+    // reset
+    shouldTrack = false
+
+    return result
   }
+
   stop() {
     if (this.active) {
       cleanupEffect(this)
-      if (this.onStop) {
-        this.onStop()
-      }
+      if (this.onStop) this.onStop()
+
       this.active = false
     }
   }
@@ -27,10 +40,14 @@ function cleanupEffect(effect) {
   effect.deps.forEach((dep: any) => {
     dep.delete(effect)
   });
+  effect.deps.length = 0
 }
 
 const targetMap = new Map()
+
 export function track(target, key) {
+  if (!isTracking()) return
+
   // target -> key -> dep
   let depsMap = targetMap.get(target)
 
@@ -39,8 +56,6 @@ export function track(target, key) {
     targetMap.set(target, depsMap)
   }
 
-  if (!activeEffect) return
-
   let dep = depsMap.get(key)
 
   if (!dep) {
@@ -48,8 +63,14 @@ export function track(target, key) {
     depsMap.set(key, dep)
   }
 
+  if (dep.has(activeEffect)) return
+
   dep.add(activeEffect)
   activeEffect.deps.push(dep)
+}
+
+function isTracking() {
+  return shouldTrack && activeEffect !== undefined
 }
 
 export function triggle(target, key) {
@@ -65,8 +86,6 @@ export function triggle(target, key) {
   }
 }
 
-
-let activeEffect
 export function effect(fn, options: any = {}) {
   // fn
   const _effect = new ReactiveEffect(fn, options.scheduler)
