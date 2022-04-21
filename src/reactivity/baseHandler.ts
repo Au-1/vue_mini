@@ -1,5 +1,6 @@
+import { isObject } from "../shared"
 import { track, triggle } from "./effect"
-import { ReativeFlags } from "./reactive"
+import { reactive, readonly, ReativeFlags } from "./reactive"
 
 const get = createGetter()
 const set = createSetter()
@@ -11,6 +12,10 @@ function createGetter(isReadonly = false) {
     if (key === ReativeFlags.IS_READONLY) return isReadonly
 
     const res = Reflect.get(target, key)
+
+    if (isObject(res)) {
+      return isReadonly ? readonly(res) : reactive(res)
+    }
 
     if (!isReadonly) track(target, key)
 

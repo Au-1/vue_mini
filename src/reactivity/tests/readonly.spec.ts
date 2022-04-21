@@ -9,6 +9,9 @@ describe('readonly', () => {
 
     expect(isReadOnly(wapped)).toBe(true)
     expect(isReadOnly(original)).toBe(false)
+
+    expect(isReadOnly(wapped.bar)).toBe(true)
+    expect(isReadOnly(original.bar)).toBe(false)
   })
 
   it('warn then call set', () => {
