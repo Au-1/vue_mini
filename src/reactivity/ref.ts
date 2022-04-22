@@ -1,6 +1,6 @@
-import { hasChanged, isObject } from "../../shared"
-import { isTracking, trackEffect, triggleEffect } from "../effect"
-import { reactive } from "../reactive"
+import { hasChanged, isObject } from "../shared"
+import { isTracking, trackEffect, triggleEffect } from "./effect"
+import { reactive } from "./reactive"
 
 class RefImpl {
   private _value: any
@@ -20,6 +20,8 @@ class RefImpl {
   }
 
   set value(newValue) {
+    // 当新的值不等于老的值的话，
+    // 那么才需要触发依赖
     if (hasChanged(newValue, this._rawValue)) {
       this._rawValue = newValue
       this._value = convert(newValue)
@@ -46,4 +48,20 @@ export function isRef(ref) {
 
 export function unRef(ref) {
   return isRef(ref) ? ref.value : ref
+}
+
+export function proxyRefs(objectWithRefs) {
+  return new Proxy(objectWithRefs, {
+    get(target, key) {
+      return unRef(Reflect.get(target, key))
+    },
+    set(target, key, value) {
+      if (isRef(target[key]) && !isRef(value)) {
+        return target[key].value = value
+      } else {
+        let a
+        return a = Reflect.set(target, key, value)
+      }
+    }
+  })
 }

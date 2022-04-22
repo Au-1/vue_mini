@@ -1,6 +1,6 @@
 import { effect } from "../effect";
 import { reactive } from "../reactive";
-import { isRef, ref, unRef } from "./ref";
+import { isRef, proxyRefs, ref, unRef } from "../ref";
 
 describe('ref', () => {
   it("happy path", () => {
@@ -62,5 +62,30 @@ describe('ref', () => {
     })
     expect(unRef(a)).toBe(1)
     expect(unRef(1)).toBe(1)
+  })
+
+  it('ProxyRefs', () => {
+    const user = {
+      age: ref(10),
+      name: 'xiaohong'
+    }
+
+    // template  中对响应式对象的引用不需要 .value 内部实现其实就是使用了 ProxyRefs
+
+    const proxyUser = proxyRefs(user)
+
+    expect(user.age.value).toBe(10)
+    expect(proxyUser.age).toBe(10)
+    expect(proxyUser.name).toBe("xiaohong")
+
+    proxyUser.age = 20
+
+    expect(proxyUser.age).toBe(20)
+    expect(user.age.value).toBe(20)
+
+    proxyUser.age = ref(10)
+
+    expect(proxyUser.age).toBe(10)
+    expect(user.age.value).toBe(10)
   })
 })
