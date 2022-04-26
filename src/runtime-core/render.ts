@@ -9,6 +9,9 @@ export function render(vnode, container) {
 function patch(vnode, container) {
   // 处理组件
   // 判断 是不是 element
+  // todo 判断vnode是不是一个element
+  // 是element 就应该处理 element
+  // 思考题： 如何去区分 是element 还是 compoent
   processComponent(vnode, container)
 }
 
@@ -24,7 +27,7 @@ function mountComponet(vnode, container) {
 
   // 然后去处理组件内的 props, slots 以及 setup 函数 返回出来的值
   setupComponent(instance)
- 
+
   setupRenderEffect(instance, container)
 }
 

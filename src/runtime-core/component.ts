@@ -18,14 +18,14 @@ export function setupComponent(instance) {
 
 // 对 setup 函数进行出来
 function setupStatefulComponent(instance: any) {
-  const Component = instance.type 
+  const Component = instance.type
 
   const { setup } = Component
 
   if (setup) {
     // setup 可能返回 function 或者 Object
     const setupResult = setup()
-    
+
 
     handleSetupResult(instance, setupResult)
   }
@@ -45,7 +45,5 @@ function handleSetupResult(instance, setupResult: any) {
 function finishComponentSetup(instance: any) {
   const Component = instance.type
 
-  if (Component.render) {
-    instance.render = Component.render
-  }
+  instance.render = Component.render
 }
