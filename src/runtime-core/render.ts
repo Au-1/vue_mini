@@ -27,8 +27,7 @@ function prcessElement(vnode, container) {
 
 function mountElement(vnode, container) {
   const { children, type, props } = vnode
-
-  const el = document.createElement(type);
+  const el = (vnode.el = document.createElement(type))
 
   if (typeof children === 'string') {
     el.textContent = children
@@ -64,16 +63,20 @@ function mountComponet(vnode, container) {
   // 然后去处理组件内的 props, slots 以及 setup 函数 返回出来的值
   setupComponent(instance)
 
-  setupRenderEffect(instance, container)
+  setupRenderEffect(instance, vnode, container)
 }
 
 // 调用 render 函数 返回 vnode
-function setupRenderEffect(instance, constructor) {
-  const subTree = instance.render()
+function setupRenderEffect(instance, vnode, constructor) {
+  const { proxy } = instance
+  const subTree = instance.render.call(proxy)
 
   // vnode  
   // vnode -> patch
   // vnode -> element -> mountElement
 
   patch(subTree, constructor)
+
+  // element => mount 
+  vnode.el = subTree.el
 }
