@@ -1,4 +1,5 @@
 import { isObject } from "../shared/index"
+import { ShapeFlags } from "../shared/ShapeFlag"
 import { createComponentInstance, setupComponent } from "./component"
 
 export function render(vnode, container) {
@@ -14,10 +15,10 @@ function patch(vnode, container) {
   // 是element 就应该处理 element
   // 思考题： 如何去区分 是element 还是 compoent
 
-
-  if (typeof vnode.type === 'string') {
+  const { shapeFlag } = vnode
+  if (shapeFlag & ShapeFlags.ELEMENT) {
     prcessElement(vnode, container)
-  } else if (isObject(vnode.type)) {
+  } else if (shapeFlag & ShapeFlags.STATEFUL_COMPONENT) {
     processComponent(vnode, container)
   }
 }
@@ -26,12 +27,12 @@ function prcessElement(vnode, container) {
 }
 
 function mountElement(vnode, container) {
-  const { children, type, props } = vnode
+  const { children, type, props, shapeFlag } = vnode
   const el = (vnode.el = document.createElement(type))
 
-  if (typeof children === 'string') {
+  if (shapeFlag & ShapeFlags.TEXT_CHILDREN) {
     el.textContent = children
-  } else if (Array.isArray(children)) {
+  } else if (shapeFlag & ShapeFlags.ARRAY_CHILDREN) {
     mountChildren(vnode, el)
   }
 
