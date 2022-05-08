@@ -98,7 +98,6 @@ export function effect(fn, options: any = {}) {
   // fn
   const _effect = new ReactiveEffect(fn, options.scheduler)
 
-  Object.assign(_effect, options)
   // extend 
   extend(_effect, options)
 
