@@ -9,21 +9,33 @@ export const App = {
     name: "App"
     return h(
       'div',
-      {
-        id: 'root',
-        onClick() {
-          console.log("click");
-        },
-        onMousedown() {
-          console.log("mousedown");
-        }
-      },
+      {},
       [
-        h("div", {}, "foo: " + this.msg),
+        h('div', {}, "App"),
         h(Foo, {
-          count: 1
+          onAdd(a, b) {
+            console.log("onAdd", a, b);
+          },
+          onAddFoo(a, b) {
+            console.log("onAddFoo", a, b);
+          }
         })
       ]
+      // {
+      //   id: 'root',
+      //   onClick() {
+      //     console.log("click");
+      //   },
+      //   onMousedown() {
+      //     console.log("mousedown");
+      //   }
+      // },
+      // [
+      //   h("div", {}, "foo: " + this.msg),
+      //   h(Foo, {
+      //     count: 1
+      //   })
+      // ]
       // 'hi,' + this.msg
       // string
       // 'hi'
