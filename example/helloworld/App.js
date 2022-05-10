@@ -1,10 +1,12 @@
 import { h } from "../../lib/guide-mini-vue.esm.js"
+import { Foo } from "./Foo.js"
 
 window.self = null
 export const App = {
   render() {
     window.self = this
     // ui
+    name: "App"
     return h(
       'div',
       {
@@ -16,7 +18,13 @@ export const App = {
           console.log("mousedown");
         }
       },
-      'hi,' + this.msg
+      [
+        h("div", {}, "foo: " + this.msg),
+        h(Foo, {
+          count: 1
+        })
+      ]
+      // 'hi,' + this.msg
       // string
       // 'hi'
       // Array
