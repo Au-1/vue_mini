@@ -1,5 +1,8 @@
 import { ShapeFlags } from "../shared/ShapeFlag"
 
+export const Fragment = Symbol("Fragment")
+export const Text = Symbol("Text")
+
 export function createVNode(type, props?, children?) {
   const vnode = {
     type, // 为传进来的 组件 对象，如 App.js
@@ -22,6 +25,10 @@ export function createVNode(type, props?, children?) {
   }
 
   return vnode
+}
+
+export function createTextVNode(text:string) {
+  return createVNode(Text, {}, text)
 }
 
 function getShapFlag(type) {
