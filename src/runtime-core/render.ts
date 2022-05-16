@@ -2,13 +2,13 @@ import { ShapeFlags } from "../shared/ShapeFlag"
 import { createComponentInstance, setupComponent } from "./component"
 import { Fragment, Text } from "./vnode"
 
-export function render(vnode, container) {
+export function render(vnode, container, parentComponent) {
   // patch
-  patch(vnode, container)
+  patch(vnode, container, null)
 }
 
 // patch 函数，将组件 vnode 的 props 等属性添加，然后挂载到 container 上， 递归调用patch最终完成一个 vdom-tree
-function patch(vnode, container) {
+function patch(vnode, container, parentComponent) {
   // 处理组件
   // 判断 是不是 element
   // todo 判断vnode是不是一个element
@@ -19,7 +19,7 @@ function patch(vnode, container) {
 
   switch (type) {
     case Fragment:
-      processFragment(vnode, container)
+      processFragment(vnode, container, parentComponent)
       break;
 
     case Text:
@@ -28,16 +28,16 @@ function patch(vnode, container) {
 
     default:
       if (shapeFlag & ShapeFlags.ELEMENT) {
-        prcessElement(vnode, container)
+        prcessElement(vnode, container, parentComponent)
       } else if (shapeFlag & ShapeFlags.STATEFUL_COMPONENT) {
-        processComponent(vnode, container)
+        processComponent(vnode, container, parentComponent)
       }
       break;
   }
 }
 
-function processFragment(vnode: any, container: any) {
-  mountChildren(vnode, container)
+function processFragment(vnode: any, container: any, parentComponent) {
+  mountChildren(vnode, container, parentComponent)
 }
 
 function processText(vnode: any, container: any) {
@@ -46,18 +46,18 @@ function processText(vnode: any, container: any) {
   container.append(textNode)
 }
 
-function prcessElement(vnode, container) {
-  mountElement(vnode, container)
+function prcessElement(vnode, container, parentComponent) {
+  mountElement(vnode, container, parentComponent)
 }
 
-function mountElement(vnode, container) {
+function mountElement(vnode, container, parentComponent) {
   const { children, type, props, shapeFlag } = vnode
   const el = (vnode.el = document.createElement(type))
 
   if (shapeFlag & ShapeFlags.TEXT_CHILDREN) {
     el.textContent = children
   } else if (shapeFlag & ShapeFlags.ARRAY_CHILDREN) {
-    mountChildren(vnode, el)
+    mountChildren(vnode, el, parentComponent)
   }
 
   // props  
@@ -78,21 +78,21 @@ function mountElement(vnode, container) {
   container.append(el)
 }
 
-function mountChildren(vnode, container) {
+function mountChildren(vnode, container, parentComponent) {
   vnode.children.forEach(v => {
-    patch(v, container)
+    patch(v, container, parentComponent)
   })
 }
 
-function processComponent(vnode, container) {
-  mountComponet(vnode, container)
+function processComponent(vnode, container, parentComponent) {
+  mountComponet(vnode, container, parentComponent)
 
 }
 
 // 挂载组件
-function mountComponet(vnode, container) {
+function mountComponet(vnode, container, parentComponent) {
   // 先创建一个 instance
-  const instance = createComponentInstance(vnode)
+  const instance = createComponentInstance(vnode, parentComponent)
 
   // 然后去处理组件内的 props, slots 以及 setup 函数 返回出来的值
   setupComponent(instance)
@@ -109,7 +109,7 @@ function setupRenderEffect(instance, vnode, constructor) {
   // vnode -> patch
   // vnode -> element -> mountElement
 
-  patch(subTree, constructor)
+  patch(subTree, constructor, instance)
 
   // element => mount 
   vnode.el = subTree.el
