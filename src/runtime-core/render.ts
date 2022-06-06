@@ -1,3 +1,4 @@
+import { effect } from "../reactivity/effect"
 import { ShapeFlags } from "../shared/ShapeFlag"
 import { createComponentInstance, setupComponent } from "./component"
 import { createAppAPI } from "./createApp"
@@ -7,52 +8,65 @@ export function createRenderer(options) {
   const { createElement: hostCreateElement, patchProp: hostPatchProp, insert: hostInsert } = options
 
 
-  function render(vnode, container, parentComponent) {
+  function render(vnode, container) {
     // patch
-    patch(vnode, container, null)
+    patch(null, vnode, container, null)
   }
 
   // patch 函数，将组件 vnode 的 props 等属性添加，然后挂载到 container 上， 递归调用patch最终完成一个 vdom-tree
-  function patch(vnode, container, parentComponent) {
+  function patch(n1, n2, container, parentComponent) {
     // 处理组件
     // 判断 是不是 element
     // todo 判断vnode是不是一个element
     // 是element 就应该处理 element
     // 思考题： 如何去区分 是element 还是 compoent
 
-    const { shapeFlag, type } = vnode
+    // n1 之前的， n2 新的
+    const { shapeFlag, type } = n2
 
     switch (type) {
       case Fragment:
-        processFragment(vnode, container, parentComponent)
+        processFragment(n1, n2, container, parentComponent)
         break;
 
       case Text:
-        processText(vnode, container)
+        processText(n1, n2, container)
         break;
 
       default:
         if (shapeFlag & ShapeFlags.ELEMENT) {
-          prcessElement(vnode, container, parentComponent)
+          processElement(n1, n2, container, parentComponent)
         } else if (shapeFlag & ShapeFlags.STATEFUL_COMPONENT) {
-          processComponent(vnode, container, parentComponent)
+          processComponent(n1, n2, container, parentComponent)
         }
         break;
     }
   }
 
-  function processFragment(vnode: any, container: any, parentComponent) {
-    mountChildren(vnode, container, parentComponent)
+  function processFragment(n1: any, n2: any, container: any, parentComponent) {
+    mountChildren(n2, container, parentComponent)
   }
 
-  function processText(vnode: any, container: any) {
-    const { children } = vnode
-    const textNode = (vnode.el = document.createTextNode(children))
+  function processText(n1, n2: any, container: any) {
+    const { children } = n2
+    const textNode = (n2.el = document.createTextNode(children))
     container.append(textNode)
   }
 
-  function prcessElement(vnode, container, parentComponent) {
-    mountElement(vnode, container, parentComponent)
+  function processElement(n1, n2, container, parentComponent) {
+    if (!n1) {
+      mountElement(n2, container, parentComponent)
+    } else {
+      patchElement(n1, n2, container)
+    } 
+  }
+
+  function patchElement(n1, n2, container) {
+    console.log('patchElement');
+
+    console.log('n1', n1)
+    console.log('n2', n2)
+
   }
 
   function mountElement(vnode, container, parentComponent) {
@@ -87,13 +101,12 @@ export function createRenderer(options) {
 
   function mountChildren(vnode, container, parentComponent) {
     vnode.children.forEach(v => {
-      patch(v, container, parentComponent)
+      patch(null, v, container, parentComponent)
     })
   }
 
-  function processComponent(vnode, container, parentComponent) {
-    mountComponet(vnode, container, parentComponent)
-
+  function processComponent(n1, n2, container, parentComponent) {
+    mountComponet(n2, container, parentComponent)
   }
 
   // 挂载组件
@@ -109,17 +122,40 @@ export function createRenderer(options) {
 
   // 调用 render 函数 返回 vnode
   function setupRenderEffect(instance, vnode, constructor) {
-    const { proxy } = instance
-    const subTree = instance.render.call(proxy)
+    effect(() => {
+      if (!instance.isMounted) {
+        console.log('init');
 
-    // vnode  
-    // vnode -> patch
-    // vnode -> element -> mountElement
+        const { proxy } = instance
+        const subTree = (instance.subTree = instance.render.call(proxy))
+        console.log(subTree);
 
-    patch(subTree, constructor, instance)
+        // vnode  
+        // vnode -> patch
+        // vnode -> element -> mountElement
 
-    // element => mount 
-    vnode.el = subTree.el
+        patch(null, subTree, constructor, instance)
+
+        // element => mount 
+        vnode.el = subTree.el
+
+        instance.isMounted = true
+      } else {
+        console.log('update');
+
+        const { proxy } = instance
+        const subTree = instance.render.call(proxy)
+        const preSubTree = instance.subTree
+
+        instance.subTree = subTree
+
+        console.log('current', subTree);
+        console.log('prev', preSubTree);
+
+        patch(preSubTree, subTree, constructor, instance)
+      }
+
+    })
   }
 
   return {
