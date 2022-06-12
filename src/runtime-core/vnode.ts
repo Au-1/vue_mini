@@ -8,6 +8,7 @@ export function createVNode(type, props?, children?) {
     type, // 为传进来的 组件 对象，如 App.js
     props,
     children,
+    key: props && props.key,
     shapeFlag: getShapFlag(type),
     el: null
   }
@@ -18,16 +19,16 @@ export function createVNode(type, props?, children?) {
     vnode.shapeFlag |= ShapeFlags.ARRAY_CHILDREN
   }
 
-  if(vnode.shapeFlag & ShapeFlags.STATEFUL_COMPONENT) {
-    if(typeof children === 'object') {
-        vnode.shapeFlag |= ShapeFlags.SLOT_CHILDREN
+  if (vnode.shapeFlag & ShapeFlags.STATEFUL_COMPONENT) {
+    if (typeof children === 'object') {
+      vnode.shapeFlag |= ShapeFlags.SLOT_CHILDREN
     }
   }
 
   return vnode
 }
 
-export function createTextVNode(text:string) {
+export function createTextVNode(text: string) {
   return createVNode(Text, {}, text)
 }
 
