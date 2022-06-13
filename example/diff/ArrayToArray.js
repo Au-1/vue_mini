@@ -83,6 +83,54 @@ const nextChildrenShortRight = [
   h('p', { key: "C" }, "C"),
 ]
 
+// 对比中间的部分
+// 删除老的（在老的里边存在，新的里面不存在）
+// 5.1
+// a,b,(c,d),f,g
+// a,b,(e,c),f,g
+// D节点在新的里面是没有的, 需要删除
+// c 节点 props 也发生了变化
+
+const prevChildrenMiddle = [
+  h('p', { key: "A" }, "A"),
+  h('p', { key: "B" }, "B"),
+  h('p', { key: "C", id: 'c-prev' }, "C"),
+  h('p', { key: "D" }, "D"),
+  h('p', { key: "F" }, "F"),
+  h('p', { key: "G" }, "G"),
+]
+const nextChildrenMiddle = [
+  h('p', { key: "A" }, "A"),
+  h('p', { key: "B" }, "B"),
+  h('p', { key: "E" }, "E"),
+  h('p', { key: "C", id: 'c-next' }, "C"),
+  h('p', { key: "F" }, "F"),
+  h('p', { key: "G" }, "G"),
+]
+
+// 5.1.1
+// a,b,(c,e,d),f,g
+// a,b,(e,c),f,g
+// 中间部分,老的比新的多,多出来的部分直接可以被干掉(优化删除逻辑)
+
+const prevChildrenMiddleM = [
+  h('p', { key: "A" }, "A"),
+  h('p', { key: "B" }, "B"),
+  h('p', { key: "C", id: 'c-prev' }, "C"),
+  h('p', { key: "E", }, "E"),
+  h('p', { key: "D" }, "D"),
+  h('p', { key: "F" }, "F"),
+  h('p', { key: "G" }, "G"),
+]
+const nextChildrenMiddleM = [
+  h('p', { key: "A" }, "A"),
+  h('p', { key: "B" }, "B"),
+  h('p', { key: "E" }, "E"),
+  h('p', { key: "C", id: 'c-next' }, "C"),
+  h('p', { key: "F" }, "F"),
+  h('p', { key: "G" }, "G"),
+]
+
 export default {
   name: 'ArrayToText',
   setup() {
@@ -97,7 +145,7 @@ export default {
     const self = this;
 
     return self.isChange
-      ? h('div', {}, nextChildrenShortRight)
-      : h('div', {}, prevChildrenShortRight);
+      ? h('div', {}, nextChildrenMiddleM)
+      : h('div', {}, prevChildrenMiddleM);
   }
 }
