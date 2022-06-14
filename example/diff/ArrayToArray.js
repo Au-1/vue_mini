@@ -131,6 +131,31 @@ const nextChildrenMiddleM = [
   h('p', { key: "G" }, "G"),
 ]
 
+
+
+// 3，创建新节点
+// a,b,(c,e),f,g
+// a,b,(e,c,d),f,g
+//  d节点在老的节点中不存在， 新的里边存在， 所以需要创建
+
+const prevChildrenC = [
+  h('p', { key: "A" }, "A"),
+  h('p', { key: "B" }, "B"),
+  h('p', { key: "C" }, "C"),
+  h('p', { key: "E" }, "E"),
+  h('p', { key: "F" }, "F"),
+  h('p', { key: "G" }, "G"),
+]
+const nextChildrenC = [
+  h('p', { key: "A" }, "A"),
+  h('p', { key: "B" }, "B"),
+  h('p', { key: "E" }, "E"),
+  h('p', { key: "C" }, "C"),
+  h('p', { key: "D" }, "D"),
+  h('p', { key: "F" }, "F"),
+  h('p', { key: "G" }, "G"),
+]
+
 export default {
   name: 'ArrayToText',
   setup() {
@@ -145,7 +170,7 @@ export default {
     const self = this;
 
     return self.isChange
-      ? h('div', {}, nextChildrenMiddleM)
-      : h('div', {}, prevChildrenMiddleM);
+      ? h('div', {}, nextChildrenC)
+      : h('div', {}, prevChildrenC);
   }
 }
