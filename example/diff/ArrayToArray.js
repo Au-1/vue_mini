@@ -156,6 +156,21 @@ const nextChildrenC = [
   h('p', { key: "G" }, "G"),
 ]
 
+
+// fix c节点应该是移动的，而不是删除之后重新创建
+const prevFix = [
+  h('p', { key: "A" }, "A"),
+  h('p', {}, "C"),
+  h('p', { key: "B" }, "B"),
+  h('p', { key: "D" }, "D"),
+]
+const nextFix = [
+  h('p', { key: "A" }, "A"),
+  h('p', { key: "B" }, "B"),
+  h('p', {}, "C"),
+  h('p', { key: "D" }, "D"),
+]
+
 export default {
   name: 'ArrayToText',
   setup() {
@@ -170,7 +185,7 @@ export default {
     const self = this;
 
     return self.isChange
-      ? h('div', {}, nextChildrenC)
-      : h('div', {}, prevChildrenC);
+      ? h('div', {}, nextFix)
+      : h('div', {}, prevFix);
   }
 }
