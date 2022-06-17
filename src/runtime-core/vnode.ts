@@ -8,6 +8,7 @@ export function createVNode(type, props?, children?) {
     type, // 为传进来的 组件 对象，如 App.js
     props,
     children,
+    component: null,
     key: props && props.key,
     shapeFlag: getShapFlag(type),
     el: null

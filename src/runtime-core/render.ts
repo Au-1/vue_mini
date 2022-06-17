@@ -2,6 +2,7 @@ import { effect } from "../reactivity/effect"
 import { EMPTY_OBJ } from "../shared"
 import { ShapeFlags } from "../shared/ShapeFlag"
 import { createComponentInstance, setupComponent } from "./component"
+import { shouldUpdateComponent } from "./componentUpdateUtils"
 import { createAppAPI } from "./createApp"
 import { Fragment, Text } from "./vnode"
 
@@ -307,23 +308,38 @@ export function createRenderer(options) {
   }
 
   function processComponent(n1, n2, container, parentComponent, anchor) {
-    mountComponet(n2, container, parentComponent, anchor)
+    if (!n1) {
+      mountComponet(n2, container, parentComponent, anchor)
+    } else {
+      updateComponent(n1, n2)
+    }
+  }
+
+  function updateComponent(n1, n2) {
+    const instance = (n2.component = n1.component)
+    if (shouldUpdateComponent(n1, n2)) {
+      instance.next = n2
+      instance.upate()
+    } else {
+      n2.el = n1.el;
+      instance.vnode = n2;
+    }
   }
 
   // 挂载组件
-  function mountComponet(vnode, container, parentComponent, anchor) {
+  function mountComponet(initialVNode, container, parentComponent, anchor) {
     // 先创建一个 instance
-    const instance = createComponentInstance(vnode, parentComponent)
+    const instance = (initialVNode.component = createComponentInstance(initialVNode, parentComponent))
 
     // 然后去处理组件内的 props, slots 以及 setup 函数 返回出来的值
     setupComponent(instance)
 
-    setupRenderEffect(instance, vnode, container, anchor)
+    setupRenderEffect(instance, initialVNode, container, anchor)
   }
 
   // 调用 render 函数 返回 vnode
   function setupRenderEffect(instance, vnode, constructor, anchor) {
-    effect(() => {
+    instance.upate = effect(() => {
       if (!instance.isMounted) {
         console.log('init');
 
@@ -343,6 +359,17 @@ export function createRenderer(options) {
         instance.isMounted = true
       } else {
         console.log('update');
+        // 需要一个 vnode
+        const { next, vnode } = instance
+        if (next) {
+          next.el = vnode.el
+
+          updateComponentPreRender(instance, next);
+        }
+
+
+
+
 
         const { proxy } = instance
         const subTree = instance.render.call(proxy)
@@ -362,6 +389,13 @@ export function createRenderer(options) {
   return {
     createApp: createAppAPI(render)
   }
+}
+
+function updateComponentPreRender(instance, nextVNode) {
+  instance.vnode = nextVNode
+  instance.next = null
+
+  instance.props = nextVNode.props
 }
 
 // 查找 最长递增子序列
