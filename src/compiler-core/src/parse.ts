@@ -10,6 +10,19 @@ export function baseParse(content: string) {
   return createRoot(parseChildren(context))
 }
 
+function createParserContext(content: string) {
+  return {
+    source: content
+  }
+}
+
+// 解析根节点
+function createRoot(children) {
+  return {
+    children,
+  }
+}
+
 // 解析 children ，返回 children数组
 function parseChildren(context) {
   const nodes: any = []
@@ -21,13 +34,29 @@ function parseChildren(context) {
   } else if (s[0] === "<") {
     if (/[a-z]/i.test(s[1])) {
       node = parseElement(context)
-
     }
+  }
+
+  if (!node) {
+    node = parseText(context)
   }
 
   nodes.push(node)
 
   return nodes
+}
+
+// 字符串推进 方法
+function advanceBy(context: any, length: number) {
+  context.source = context.source.slice(length)
+}
+
+function parseElement(context: any) {
+  const element = parseTag(context, TagType.Start)
+
+  parseTag(context, TagType.End)
+
+  return element
 }
 
 // 解析插值
@@ -42,7 +71,8 @@ function parseInterpolation(context) {
 
   const rawContentLength = closeIndex - openDelimiter.length
 
-  const rawContent = context.source.slice(0, rawContentLength)
+  const rawContent = parseTextData(context, rawContentLength)
+  // context.source.slice(0, rawContentLength)
 
   const content = rawContent.trim()
 
@@ -58,33 +88,7 @@ function parseInterpolation(context) {
   }
 }
 
-// 字符串推进
-function advanceBy(context: any, length: number) {
-  context.source = context.source.slice(length)
-}
-
-// 解析根节点
-function createRoot(children) {
-  return {
-    children,
-  }
-}
-
-function createParserContext(content: string) {
-  return {
-    source: content
-  }
-}
-
-function parseElement(context: any) {
-  const element = parseTag(context, TagType.Start)
-
-  parseTag(context, TagType.End)
-  console.log("---------", context.source);
-
-  return element
-}
-
+// 处理 <div> </div>
 function parseTag(context: any, type: TagType) {
   // 1. 解析 tag
   const match: any = /^<\/?([a-z]*)/i.exec(context.source)
@@ -100,4 +104,24 @@ function parseTag(context: any, type: TagType) {
     type: NodeTypes.ELEMENT,
     tag
   }
+}
+
+// 处理 text 文本
+function parseText(context: any): any {
+  // 1. 获取 content
+  const content = parseTextData(context, context.source.length)
+
+  return {
+    type: NodeTypes.TEXT,
+    content
+  }
+}
+
+function parseTextData(context, length) {
+  const content = context.source.slice(0, length)
+
+  // 2. 推进
+  advanceBy(context, length)
+
+  return content
 }
