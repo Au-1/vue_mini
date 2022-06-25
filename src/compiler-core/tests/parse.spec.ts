@@ -1,5 +1,5 @@
-import { baseParse } from "../compiler-core/src/parse"
-import { NodeTypes } from "./src/ast"
+import { baseParse } from "../src/parse"
+import { NodeTypes } from "../src/ast"
 
 describe('parse', () => {
   describe('interpolation', () => {
@@ -50,7 +50,7 @@ describe('parse', () => {
       children: [
         {
           type: NodeTypes.TEXT,
-          content: 'hi'
+          content: 'hi,'
         },
         {
           type: NodeTypes.INTERPOLATION,
