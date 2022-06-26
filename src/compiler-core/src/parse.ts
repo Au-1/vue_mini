@@ -20,6 +20,7 @@ function createParserContext(content: string) {
 function createRoot(children) {
   return {
     children,
+    type: NodeTypes.ROOT
   }
 }
 
@@ -107,7 +108,7 @@ function parseInterpolation(context) {
 
   const content = rawContent.trim()
 
-  advanceBy(context,  closeDelimiter.length)
+  advanceBy(context, closeDelimiter.length)
 
 
   return {
