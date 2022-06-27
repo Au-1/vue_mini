@@ -12,10 +12,10 @@ export const App = {
         count.value = i;
       }
 
-      console.log(instance);
+      // console.log(instance);
 
       nextTick(() => {
-        console.log(instance);
+        // console.log(instance);
       })
 
       // await nextTick()

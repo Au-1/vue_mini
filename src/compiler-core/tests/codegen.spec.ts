@@ -1,7 +1,9 @@
 import { generate } from "../src/codegen"
 import { baseParse } from "../src/parse"
 import { transform } from "../src/transform"
+import { transformElement } from "../src/transforms/transformElement"
 import { transformExpression } from "../src/transforms/transformExpression"
+import { transformText } from "../src/transforms/transformText"
 
 describe('codegen', () => {
   it('string', () => {
@@ -29,6 +31,20 @@ describe('codegen', () => {
     // 快照 (string)
     //  1. 抓住错误
     // 2. 有意更新快照
+    expect(code).toMatchSnapshot()
+  })
+
+  it("element", () => {
+    const ast: any = baseParse('<div>hi, {{message}}</div>')
+
+    transform(ast, {
+      nodeTransforms: [transformExpression, transformElement, transformText]
+    })
+
+    console.log('e', ast);
+
+
+    const { code } = generate(ast)
     expect(code).toMatchSnapshot()
   })
 })
