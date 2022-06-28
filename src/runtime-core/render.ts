@@ -70,11 +70,7 @@ export function createRenderer(options) {
     }
   }
 
-  function patchElement(n1, n2, container, parentComponent, anchor) {
-    console.log('patchElement');
-
-    console.log('n1', n1)
-    console.log('n2', n2)
+  function patchElement(n1, n2, container, parentComponent, anchor) { 
 
     const oldProps = n1.props || EMPTY_OBJ
     const newProps = n2.props || EMPTY_OBJ
@@ -341,11 +337,9 @@ export function createRenderer(options) {
   // 调用 render 函数 返回 vnode
   function setupRenderEffect(instance, vnode, constructor, anchor) {
     instance.upate = effect(() => {
-      if (!instance.isMounted) {
-        console.log('init');
-
+      if (!instance.isMounted) { 
         const { proxy } = instance
-        const subTree = (instance.subTree = instance.render.call(proxy))
+        const subTree = (instance.subTree = instance.render.call(proxy, proxy))
         console.log(subTree);
 
         // vnode  
@@ -373,7 +367,7 @@ export function createRenderer(options) {
 
 
         const { proxy } = instance
-        const subTree = instance.render.call(proxy)
+        const subTree = instance.render.call(proxy, proxy)
         const preSubTree = instance.subTree
 
         instance.subTree = subTree

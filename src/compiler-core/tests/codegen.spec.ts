@@ -41,9 +41,6 @@ describe('codegen', () => {
       nodeTransforms: [transformExpression, transformElement, transformText]
     })
 
-    console.log('e', ast);
-
-
     const { code } = generate(ast)
     expect(code).toMatchSnapshot()
   })

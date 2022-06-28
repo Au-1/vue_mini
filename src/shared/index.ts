@@ -8,6 +8,8 @@ export const isObject = (val) => {
 
 export const isString = (value) => typeof value === "string"
 
+export * from  "./toDisplayString"
+
 export const hasChanged = (val, newVal) => {
   return !Object.is(val, newVal)
 }
